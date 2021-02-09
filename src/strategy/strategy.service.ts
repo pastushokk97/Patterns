@@ -1,4 +1,4 @@
-import { Strategy } from "./interface/strategy.interface"
+import { Strategy } from './interface/strategy.interface';
 export class StrategyService {
 
   private strategy: Strategy;

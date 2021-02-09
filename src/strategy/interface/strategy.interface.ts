@@ -3,8 +3,8 @@ export interface Strategy {
 }
 
 export enum mathSign {
-  summary = "summary",
-  minus = "minus",
-  divivde = "divivde",
-  multiplying = "multiplying",
+  summary = 'summary',
+  minus = 'minus',
+  divivde = 'divivde',
+  multiplying = 'multiplying',
 }
