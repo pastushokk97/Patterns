@@ -13,18 +13,44 @@ import { Role, AgentByDefault } from './interface/observer.interface';
 const chance = new Chance();
 
 const testUser = {
-  userId: chance.integer({ min: 10000, max: 99999 }),
-  firstname: chance.string({length: 10}),
-  lastname: chance.string({length: 10}),
-  role: Role.subscriber
+  userId: 7777,
+  firstname: chance.string({ length: 10 }),
+  lastname: chance.string({ length: 10 }),
+  role: Role.subscriber,
+  agentId: null
 };
 
 const testAgent = {
-  userId: chance.integer({ min: 10000, max: 99999 }),
-  firstname: chance.string({length: 10}),
-  lastname: chance.string({length: 10}),
+  userId: 8888,
+  firstname: chance.string({ length: 10 }),
+  lastname: chance.string({ length: 10 }),
   role: Role.agent
 };
+
+const testWithAgent = {
+  userId: 7780,
+  firstname: chance.string({ length: 10 }),
+  lastname: chance.string({ length: 10 }),
+  role: Role.subscriber,
+  agentId: 8888
+};
+
+const users = [
+  {
+    userId: 7778,
+    firstname: chance.string({ length: 10 }),
+    lastname: chance.string({ length: 10 }),
+    role: Role.subscriber,
+    agentId: AgentByDefault.userId
+  },
+  {
+    userId: 7779,
+    firstname: chance.string({ length: 10 }),
+    lastname: chance.string({ length: 10 }),
+    role: Role.subscriber,
+    agentId: AgentByDefault.userId
+  }
+];
 
 describe('Observer', () => {
   let app: INestApplication;
@@ -44,12 +70,15 @@ describe('Observer', () => {
     app = moduleRef.createNestApplication();
 
     app.useGlobalPipes(new ValidationPipe());
-    await entityManager.save(SubscriberEntity, AgentByDefault);
     await app.init();
+  });
+  afterEach(async () => {
+    await entityManager.delete(SubscriberEntity, [
+      testUser, testAgent, ...users
+    ]);
   });
 
   afterAll(async () => {
-    await entityManager.delete(SubscriberEntity, [testUser, testAgent]);
     await app.close();
   });
 
@@ -73,6 +102,52 @@ describe('Observer', () => {
       expect(status).toStrictEqual(200);
       expect(body.userId).toStrictEqual(testAgent.userId);
       expect(body.agentId).toBeNull();
+    });
+    it('should save new user with agent', async () => {
+      await entityManager.save(SubscriberEntity, testAgent);
+
+      const { status, body } = await request(app.getHttpServer())
+        .post('/observer/subscriber')
+        .send(testWithAgent);
+
+      expect(status).toStrictEqual(200);
+      expect(body.userId).toStrictEqual(testWithAgent.userId);
+      expect(body.agentId).toStrictEqual(testAgent.userId);
+    });
+    it('should response 404 due to subscriber doesn\'t exist', async () => {
+      const { body } = await request(app.getHttpServer())
+        .post('/observer/unsubscribe')
+        .send({ userId: chance.integer({ min: 10000, max: 99999 }) });
+      expect(body.status).toStrictEqual(404);
+    });
+    it('should unsubscribe user', async () => {
+      await entityManager.save(SubscriberEntity, testUser);
+      const { body } = await request(app.getHttpServer())
+        .post('/observer/unsubscribe')
+        .send({ userId: testUser.userId });
+      expect(body.status).toStrictEqual(200);
+    });
+    it('should return all subscribers for agent', async () => {
+      await entityManager.save(SubscriberEntity, users);
+
+      const { body, status } = await request(app.getHttpServer())
+        .get('/observer/mysubscribers')
+        .send({ userId: AgentByDefault.userId });
+
+      expect(status).toStrictEqual(200);
+      expect(body).toHaveLength(users.length);
+    });
+    it('should notify users', async () => {
+      const { body, status } = await request(app.getHttpServer())
+        .post('/observer/notify')
+        .send({ userId: AgentByDefault.userId });
+
+      const { subscribers } = body;
+
+      expect(status).toStrictEqual(200);
+      for (let i = 0; i < subscribers.length; i++) {
+        expect(subscribers).toContain(users[i].userId);
+      }
     });
   });
 });

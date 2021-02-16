@@ -1,5 +1,5 @@
-import { Entity, Column,PrimaryColumn } from 'typeorm';
-import { Role } from '../observer/interface/observer.interface'
+import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Role } from '../observer/interface/observer.interface';
 
 @Entity('user')
 export class SubscriberEntity {

@@ -13,7 +13,11 @@ interface User {
 }
 
 export interface Observer {
-  updateSubscriber(userId: number, agentId: number, updateField: any): Promise<any>
+  updateSubscriber(
+    userId: number,
+    agentId: number,
+    updateField: any
+  ): Promise<any>
   getAllSubscribers(id: number): Promise<SubscriberEntity[]>
   notifyMySubscribers(id:number): Promise<SubscriberEntity[]>;
 }
@@ -27,7 +31,8 @@ export class SubscriberService implements User {
   }
 
   async subscribe(subscriber: Subscriber): Promise<SubscriberEntity | string> {
-    const isExist = await this.entityManager.findOne(SubscriberEntity, subscriber.userId);
+    const isExist =
+      await this.entityManager.findOne(SubscriberEntity, { userId: subscriber.userId });
     if (isExist) {
       return 'This user is already existed';
     }
@@ -35,7 +40,8 @@ export class SubscriberService implements User {
   }
 
   async unsubscribe(subscriberId: number): Promise<boolean> {
-    const deleteSubscriber = await this.entityManager.delete(SubscriberEntity,subscriberId);
+    const deleteSubscriber =
+      await this.entityManager.delete(SubscriberEntity, subscriberId);
 
     return deleteSubscriber.affected === 1;
   }
@@ -62,17 +68,23 @@ export class ObserverService implements  Observer {
       role: Role.subscriber
     });
 
-    for(const subscriber of subscribers) {
+    for (const subscriber of subscribers) {
       notifying.push(subscriber.userId);
     }
 
     return notifying;
   }
 
-  async updateSubscriber(userId: number, agentId: number, updateField: any): Promise<any> {
-    const isBelong = await this.entityManager.findOne(SubscriberEntity,{userId,agentId});
+  async updateSubscriber(
+    userId: number,
+    agentId: number,
+    updateField: any
+  ): Promise<any> {
+    const isBelong =
+      await this.entityManager.findOne(SubscriberEntity, { userId, agentId });
+
     return isBelong ?
-      this.entityManager.update(SubscriberEntity,{userId}, updateField)
-      : 'This user doesn\'t belong to this agent';
+      this.entityManager.update(SubscriberEntity, { userId }, updateField) :
+      'This user doesn\'t belong to this agent';
   }
 }

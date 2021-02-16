@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StrategyModule } from './strategy/strategy.module';
-import { ObserverModule } from './observer/observer.module'
-import * as buildDatabaseConfig from '../src/typeorm.config'
+import { ObserverModule } from './observer/observer.module';
+import * as buildDatabaseConfig from '../src/typeorm.config';
 
 @Module({
   imports: [

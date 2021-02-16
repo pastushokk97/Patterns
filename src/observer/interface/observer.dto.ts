@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumberString, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsNumberString } from 'class-validator';
 import { Role } from './observer.interface';
 
 export class createSubscriberDTO {
@@ -14,6 +14,7 @@ export class createSubscriberDTO {
   @IsEnum(Role)
   readonly role: string;
 
+  @IsOptional()
   agentId: number;
 }
 

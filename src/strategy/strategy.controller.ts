@@ -19,19 +19,19 @@ export class StrategyController {
 
     switch (NumbersDTO.operation) {
     case mathSign.summary:
-      operation = new StrategyService(new StrategySummary);
+      operation = new StrategyService(new StrategySummary());
       break;
     case mathSign.minus:
-      operation = new StrategyService(new StrategyMinus);
+      operation = new StrategyService(new StrategyMinus());
       break;
     case mathSign.divivde:
-      operation = new StrategyService(new StrategyDivide);
+      operation = new StrategyService(new StrategyDivide());
       break;
     case mathSign.multiplying:
-      operation = new StrategyService(new StrategyMultiplying);
+      operation = new StrategyService(new StrategyMultiplying());
       break;
     default:
-      operation = new StrategyService(new StrategySummary);
+      operation = new StrategyService(new StrategySummary());
     }
 
     return operation.calculator(NumbersDTO.numbers);
